@@ -39,7 +39,7 @@ get_means <- function(){
   return(means)
 }
 
-get_means2 <- function(){
+get_means_ATTEMPT2 <- function(){
   for (i in seq_along(dates)){
     if filtered_df$sample_date > dates[i+1]:
      
@@ -66,3 +66,5 @@ library(patchwork)
 (figurek/figuren03/figuremg/figureca/figurenh4) & theme(minimal())
 
 figurek
+
+# merge conflict!!
