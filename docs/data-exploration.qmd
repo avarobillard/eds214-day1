@@ -4,3 +4,22 @@ format: html
 editor: visual
 ---
 
+```{r}
+library(here)
+library(tidyverse)
+library(dplyr)
+ 
+# read in csv files
+
+PRM <- read_csv(here("data", "RioMameyesPuenteRoto.csv"))
+BQ1 <- read_csv(here("data", "QuebradaCuenca1-Bisley.csv"))
+BQ2 <- read_csv(here("data", "QuebradaCuenca2-Bisley.csv"))
+BQ3 <- read_csv(here("data", "QuebradaCuenca3-Bisley.csv"))
+```
+
+```{r}
+# explore data
+full_join <- PRM %>% 
+  full_join(BQ1)
+```
+
