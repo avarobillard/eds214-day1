@@ -38,7 +38,14 @@ get_means <- function(){
   }
   return(means)
 }
-    
+
+get_means2 <- function(){
+  for (i in seq_along(dates)){
+    if filtered_df$sample_date > dates[i+1]:
+     
+  }
+}
+  
 
 #sapply(mean(dates_found))
 
