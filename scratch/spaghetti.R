@@ -15,6 +15,8 @@ library(tidyverse)
 library(dplyr)
 library(janitor)
 
+source(here("R/moving_average.R"))
+
 rm(list = ls())
 
 # Read in csv files
@@ -37,46 +39,16 @@ filtered_df <- full_join %>%
   filter(lubridate::year(sample_date) %in% c(1988:1995)) 
 
 
-
-# # Original function attempt:
-# # Create a date sequence for one date every 30 days
-# dates <- seq(from = as.Date("1989-01-01"), to = as.Date("1995-01-01"), by = 30)
-# 
-# averages <- c()
-# get_average <- function(dataframe) {
-#   # for each date in my sequence
-#   for (i in seq_along(dates)) {
-#     # first day is the date
-#     first_day <- dates[i]
-#     # last day is second day, 30 days later
-#     last_day <- dates[i+1]
-#     # filter the data frame by if the sample_date col of data frame is in the range of first and last day
-#     df_interval <- dataframe %>% 
-#       filter(first_day <= sample_date & sample_date < last_day)
-#       # find mean of the filtered data set's k values if there are days in interval
-#     if (length(df_interval) > 0){
-#       averages[i] <- mean(df_interval$k, na.rm = T)
-#     }
-#   }
-#   return(averages)
+# moving_average <- function(focal_date, dates, conc, win_size_wks) {
+#   # Which dates are in the window?
+#   is_in_window <- (dates > focal_date - (win_size_wks / 2) * 7) &
+#     (dates < focal_date + (win_size_wks / 2) * 7)
+#   # Find the associated concentrations
+#   window_conc <- conc[is_in_window]
+#   # Calculate the mean
+#   result <- mean(window_conc)
+#   return(result)
 # }
-
-# this vector should be the average k concentration over each of the 30 day intervals- 6x12 = 72, but has one extra value & NaN value
-# also, is it doing it for all sites? i think so but need avg for each site individually
-#averages_vector <- get_average(filtered_df)
-
-moving_average <- function(focal_date, dates, conc, win_size_wks) {
-  # Which dates are in the window?
-  is_in_window <- (dates > focal_date - (win_size_wks / 2) * 7) &
-    (dates < focal_date + (win_size_wks / 2) * 7)
-  # Find the associated concentrations
-  window_conc <- conc[is_in_window]
-  # Calculate the mean
-  result <- mean(window_conc)
-
-  
-  return(result)
-}
 
 # rolling average of no3_n concentration for all sites 
 filtered_df$calc_rolling_no3_n <- sapply(
@@ -165,6 +137,4 @@ figurenh4_n <- ggplot(filtered_df, aes(x = sample_date, y = calc_rolling_nh4_n))
 
 (figurek/figureno3_n/figuremg/figureca/figurenh4_n)
 
-figurek
 
-# merge conflict!!
