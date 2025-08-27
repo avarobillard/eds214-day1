@@ -37,6 +37,7 @@ filtered_df <- full_join %>%
   filter(lubridate::year(sample_date) %in% c(1988:1995)) 
 
 
+
 # # Original function attempt:
 # # Create a date sequence for one date every 30 days
 # dates <- seq(from = as.Date("1989-01-01"), to = as.Date("1995-01-01"), by = 30)
@@ -72,6 +73,7 @@ moving_average <- function(focal_date, dates, conc, win_size_wks) {
   window_conc <- conc[is_in_window]
   # Calculate the mean
   result <- mean(window_conc)
+
   
   return(result)
 }
@@ -164,3 +166,5 @@ figurenh4_n <- ggplot(filtered_df, aes(x = sample_date, y = calc_rolling_nh4_n))
 (figurek/figureno3_n/figuremg/figureca/figurenh4_n)
 
 figurek
+
+# merge conflict!!
