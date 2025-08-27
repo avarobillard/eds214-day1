@@ -165,6 +165,5 @@ figurenh4_n <- ggplot(filtered_df, aes(x = sample_date, y = calc_rolling_nh4_n))
 
 (figurek/figureno3_n/figuremg/figureca/figurenh4_n)
 
-figurek
 
 # merge conflict!!
