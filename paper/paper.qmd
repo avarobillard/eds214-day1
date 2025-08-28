@@ -1,0 +1,171 @@
+---
+title: "Paper"
+format: html
+---
+
+## Background
+
+Stream water concentrations can be affected by watershed disturbances like hurricanes, which can be studied using long-term weekly records of stream water chemistry in the Luquillo Mountains of Puerto Rico before and after Hurricane Hugo in 1989.
+
+Four watersheds, Puente Roto Mameyes (PRM) and Bisley Quebradas 1, 2, and 3 (BQ1, BQ2, and BQ3) are sites located within the Luquillo Experimental Forest (LEF).
+
+This paper serves to recreate Figure 3 of the study in Schaefer et al. (2000), which represents 9-week moving averages of concentrations of various nutrients before and after the hurricane in each of the four watersheds.
+
+## Data
+
+### Set up and read in data
+```{r}
+#| warning: false
+#| message: false
+# Load packages
+library(here)
+library(tidyverse)
+library(dplyr)
+library(janitor)
+library(patchwork)
+
+# Source functions
+source(here("R", "moving_average.R"))
+
+# Read in csv files
+PRM <- read_csv(here("data", "RioMameyesPuenteRoto.csv"))
+BQ1 <- read_csv(here("data", "QuebradaCuenca1-Bisley.csv"))
+BQ2 <- read_csv(here("data", "QuebradaCuenca2-Bisley.csv"))
+BQ3 <- read_csv(here("data", "QuebradaCuenca3-Bisley.csv"))
+
+```
+
+### Clean and filter data
+```{r}
+#| message: false
+# Join all data frames, clean up column names
+full_join <- PRM %>% 
+  full_join(BQ1) %>% 
+  full_join(BQ2) %>% 
+  full_join(BQ3) %>% 
+  clean_names() 
+
+# Filter data 
+filtered_df <- full_join %>% 
+  select("sample_id", "sample_date", "no3_n", "k", "mg", "ca", "nh4_n") %>%
+  filter(lubridate::year(sample_date) %in% c(1988:1994)) 
+```
+
+## Methods
+
+```{r}
+## Determine rolling averages of each nutrient
+
+# Rolling average of no3_n concentration for all sites 
+filtered_df$calc_rolling_no3_n <- sapply(
+  # variable to loop over/apply to all of
+  filtered_df$sample_date,
+  moving_average,
+  dates = filtered_df$sample_date,
+  conc = filtered_df$no3_n,
+  win_size_wks = 9
+)
+
+# Rolling average of k concentration for all sites 
+filtered_df$calc_rolling_k <- sapply(
+  # variable to loop over/apply to all of
+  filtered_df$sample_date,
+  moving_average,
+  dates = filtered_df$sample_date,
+  conc = filtered_df$k,
+  win_size_wks = 9
+)
+
+# Rolling average of mg concentration for all sites 
+filtered_df$calc_rolling_mg <- sapply(
+  # variable to loop over/apply to all of
+  filtered_df$sample_date,
+  moving_average,
+  dates = filtered_df$sample_date,
+  conc = filtered_df$mg,
+  win_size_wks = 9
+)
+
+# Rolling average of ca concentration for all sites 
+filtered_df$calc_rolling_ca <- sapply(
+  # variable to loop over/apply to all of
+  filtered_df$sample_date,
+  moving_average,
+  dates = filtered_df$sample_date,
+  conc = filtered_df$ca,
+  win_size_wks = 9
+)
+
+# Rolling average of nh4_n concentration for all sites 
+filtered_df$calc_rolling_nh4_n <- sapply(
+  # variable to loop over/apply to all of
+  filtered_df$sample_date,
+  moving_average,
+  dates = filtered_df$sample_date,
+  conc = filtered_df$nh4_n,
+  win_size_wks = 9
+)
+
+
+# Try a pivot longer data set to be able to graph by nutrient
+pivot <- filtered_df %>% 
+  pivot_longer(cols = c("calc_rolling_no3_n", "calc_rolling_k", "calc_rolling_mg", "calc_rolling_ca", "calc_rolling_nh4_n"),
+               names_to = "calc_rolling",
+               values_to = "avg")
+```
+
+## Results
+
+### Patchwork figure
+
+```{r}
+#| warning: false
+# GGplot for each nutrient
+
+# Create k graph
+figurek <- ggplot(filtered_df, aes(x = sample_date, y = calc_rolling_k)) +
+  geom_line(aes(linetype = sample_id)) +
+  labs(x = "Year",
+       y = "K mg/l")
+
+# Create no3_n graph
+figureno3_n <- ggplot(filtered_df, aes(x = sample_date, y = calc_rolling_no3_n)) +
+  geom_line(aes(linetype = sample_id)) +
+  labs(x = "Year",
+       y = "NO3-N ug/l")
+
+# Create mg graph
+figuremg <- ggplot(filtered_df, aes(x = sample_date, y = calc_rolling_mg)) +
+  geom_line(aes(linetype = sample_id)) +
+  labs(x = "Year",
+       y = "Mg mg/l")
+
+# Create ca graph
+figureca <- ggplot(filtered_df, aes(x = sample_date, y = calc_rolling_ca)) +
+  geom_line(aes(linetype = sample_id)) +
+  labs(x = "Year",
+       y = "Ca mg/l")
+
+# Create nh4_n graph
+figurenh4_n <- ggplot(filtered_df, aes(x = sample_date, y = calc_rolling_nh4_n)) +
+  geom_line(aes(linetype = sample_id)) +
+  labs(x = "Year",
+       y = "NH4-N ug/l")
+
+# Combine figures into a patchwork figure
+patchwork <- (figurek/figureno3_n/figuremg/figureca/figurenh4_n) +
+  plot_layout(axes = "collect", guides = "collect")
+patchwork & theme_light()
+```
+
+### Alternative: facet-wrapped figure
+
+```{r}
+#| warning: false
+# Facet-wrapped figure
+facet <- ggplot(pivot, aes(x = sample_date, y = avg)) +
+  geom_line(aes(linetype = sample_id)) +
+  facet_wrap(~calc_rolling, scales = "free_y", ncol = 1)
+
+facet
+```
