@@ -49,6 +49,8 @@ full_join <- PRM %>%
 filtered_df <- full_join %>% 
   select("sample_id", "sample_date", "no3_n", "k", "mg", "ca", "nh4_n") %>%
   filter(lubridate::year(sample_date) %in% c(1988:1994)) 
+
+# Use write_csv() to save df!
 ```
 
 ## Methods
