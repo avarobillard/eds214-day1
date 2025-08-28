@@ -47,8 +47,6 @@ filtered_df <- full_join %>%
 #   window_conc <- conc[is_in_window]
 #   # Calculate the mean
 #   result <- mean(window_conc)
-# 
-#   
 #   return(result)
 # }
 
