@@ -117,7 +117,6 @@ pivot <- filtered_df %>%
 ## Results
 
 ### Patchwork figure
-
 ```{r}
 #| warning: false
 # GGplot for each nutrient
@@ -159,7 +158,6 @@ patchwork & theme_light()
 ```
 
 ### Alternative: facet-wrapped figure
-
 ```{r}
 #| warning: false
 # Facet-wrapped figure
