@@ -154,7 +154,10 @@ figurenh4_n <- ggplot(filtered_df, aes(x = sample_date, y = calc_rolling_nh4_n))
 # Combine figures into a patchwork figure
 patchwork <- (figurek/figureno3_n/figuremg/figureca/figurenh4_n) +
   plot_layout(axes = "collect", guides = "collect")
-patchwork & theme_light()
+patchwork & theme_light() +
+  theme(
+    legend.title = element_text("Site")
+  )
 ```
 
 ### Alternative: facet-wrapped figure
