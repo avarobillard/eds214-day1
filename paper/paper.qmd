@@ -1,5 +1,5 @@
 ---
-title: "Final Project"
+title: "EDS 214 Final Project"
 format: html
 ---
 
@@ -31,115 +31,65 @@ source(here("R", "moving_average.R"))
 ### Read in cleaned data
 ```{r}
 #| message: false
-<<<<<<< HEAD
 filtered_df <- read_csv(here("output", "filtered_df.csv"))
-=======
-# Join all data frames, clean up column names
-full_join <- PRM %>% 
-  full_join(BQ1) %>% 
-  full_join(BQ2) %>% 
-  full_join(BQ3) %>% 
-  clean_names() 
-
-# Filter data 
-filtered_df <- full_join %>% 
-  select("sample_id", "sample_date", "no3_n", "k", "mg", "ca", "nh4_n") %>%
-  filter(lubridate::year(sample_date) %in% c(1988:1994)) 
-
-# Use write_csv() to save df!
->>>>>>> b7ab99f8e19b3853a61f89f8de6554d6e3ca7f22
 ```
 
 ## Methods
 
-```{r}
-## Determine rolling averages of each nutrient by site
-
-filtered_df <- filtered_df %>% 
-  group_by(sample_id) %>% # Group by sample id 
-  mutate( # Add column for each nutrient
-    # Column for rolling average of k concentration
-    calc_rolling_k = sapply(sample_date,
-                            moving_average,
-                            dates = sample_date,
-                            conc = k,
-                            win_size_wks = 9),
-    
-    # Column for rolling average of no3_n concentration
-    calc_rolling_no3_n = sapply(sample_date,
-                                moving_average,
-                                dates = sample_date,
-                                conc = no3_n,
-                                win_size_wks = 9),
-    
-    # Column for rolling average of mg concentration
-    calc_rolling_mg = sapply(sample_date,
-                             moving_average,
-                             dates = sample_date,
-                             conc = mg,
-                             win_size_wks = 9),
-    
-    # Column for rolling average of ca concentration
-    calc_rolling_ca = sapply(sample_date,
-                             moving_average,
-                             dates = sample_date,
-                             conc = ca,
-                             win_size_wks = 9),
-    
-    # Column for rolling average of nh4_n concentration
-    calc_rolling_nh4_n = sapply(sample_date,
-                                moving_average,
-                                dates = sample_date,
-                                conc = nh4_n,
-                                win_size_wks = 9)
-  ) %>% 
-  # Ungroup for any further analyses with data frame
-  ungroup()
-
-
-# Try a pivot longer data set to be able to graph by nutrient
-pivot <- filtered_df %>% 
-  pivot_longer(cols = c("calc_rolling_no3_n", "calc_rolling_k", "calc_rolling_mg", "calc_rolling_ca", "calc_rolling_nh4_n"),
-               names_to = "calc_rolling",
-               values_to = "avg")
-```
+The nine-week moving average was calculated for each nutrient and each site, and added as a column to a final data frame to be used for plotting.
 
 ## Results
-
+The final figure is reflects each nutrient's rolling average from 1988-1995, with line type based upon site.
 ### Patchwork figure
 ```{r}
 #| warning: false
-# GGplot for each nutrient
+final_df <- read_csv(here("output", "final_df.csv"))
+# Create ggplot for each nutrient
 
 # Create k graph
-figurek <- ggplot(filtered_df, aes(x = sample_date, y = calc_rolling_k)) +
+figurek <- ggplot(final_df, aes(x = sample_date, y = calc_rolling_k)) +
   geom_line(aes(linetype = sample_id)) +
   labs(x = "Year",
        y = "K mg/l")
 
+# Save output
+ggsave(here("output", "figurek.png"))
+
 # Create no3_n graph
-figureno3_n <- ggplot(filtered_df, aes(x = sample_date, y = calc_rolling_no3_n)) +
+figureno3_n <- ggplot(final_df, aes(x = sample_date, y = calc_rolling_no3_n)) +
   geom_line(aes(linetype = sample_id)) +
   labs(x = "Year",
        y = "NO3-N ug/l")
 
+# Save output
+ggsave(here("output", "figureno3_n.png"))
+
 # Create mg graph
-figuremg <- ggplot(filtered_df, aes(x = sample_date, y = calc_rolling_mg)) +
+figuremg <- ggplot(final_df, aes(x = sample_date, y = calc_rolling_mg)) +
   geom_line(aes(linetype = sample_id)) +
   labs(x = "Year",
        y = "Mg mg/l")
 
+# Save output
+ggsave(here("output", "figuremg.png"))
+
 # Create ca graph
-figureca <- ggplot(filtered_df, aes(x = sample_date, y = calc_rolling_ca)) +
+figureca <- ggplot(final_df, aes(x = sample_date, y = calc_rolling_ca)) +
   geom_line(aes(linetype = sample_id))  +
   labs(x = "Year",
        y = "Ca mg/l")
 
+# Save output
+ggsave(here("output", "figureca.png"))
+
 # Create nh4_n graph
-figurenh4_n <- ggplot(filtered_df, aes(x = sample_date, y = calc_rolling_nh4_n)) +
+figurenh4_n <- ggplot(final_df, aes(x = sample_date, y = calc_rolling_nh4_n)) +
   geom_line(aes(linetype = sample_id)) +
   labs(x = "Year",
        y = "NH4-N ug/l") 
+
+# Save output
+ggsave(here("output", "figurenh4_n.png"))
 
 # Combine figures into a patchwork figure
 patchwork <- (figurek/figureno3_n/figuremg/figureca/figurenh4_n) +
@@ -148,15 +98,10 @@ patchwork & theme_light() +
   theme(
     legend.title = element_text("Site")
   ) 
-```
 
-### Alternative: facet-wrapped figure
-```{r}
-#| warning: false
-# Facet-wrapped figure
-facet <- ggplot(pivot, aes(x = sample_date, y = avg)) +
-  geom_line(aes(linetype = sample_id)) +
-  facet_wrap(~calc_rolling, scales = "free_y", ncol = 1)
-
-facet
+# Save output
+ggsave(here("output", "patchwork.png"))
 ```
+```
+![Final Figure]("output/patchwork.png")
+

@@ -33,3 +33,11 @@ filtered_df <- full_join %>%
 ### Save as .csv file
 write_csv(filtered_df, here("output", "filtered_df.csv"))
 
+# Create a pivot longer data set to be able to graph by nutrient
+pivot <- filtered_df %>% 
+  pivot_longer(cols = c("calc_rolling_no3_n", "calc_rolling_k", "calc_rolling_mg", "calc_rolling_ca", "calc_rolling_nh4_n"),
+               names_to = "calc_rolling",
+               values_to = "avg")
+
+# Save as a .csv file 
+write_csv(pivot, here("output", "pivot.csv"))
