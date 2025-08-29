@@ -31,7 +31,23 @@ source(here("R", "moving_average.R"))
 ### Read in cleaned data
 ```{r}
 #| message: false
+<<<<<<< HEAD
 filtered_df <- read_csv(here("output", "filtered_df.csv"))
+=======
+# Join all data frames, clean up column names
+full_join <- PRM %>% 
+  full_join(BQ1) %>% 
+  full_join(BQ2) %>% 
+  full_join(BQ3) %>% 
+  clean_names() 
+
+# Filter data 
+filtered_df <- full_join %>% 
+  select("sample_id", "sample_date", "no3_n", "k", "mg", "ca", "nh4_n") %>%
+  filter(lubridate::year(sample_date) %in% c(1988:1994)) 
+
+# Use write_csv() to save df!
+>>>>>>> b7ab99f8e19b3853a61f89f8de6554d6e3ca7f22
 ```
 
 ## Methods
