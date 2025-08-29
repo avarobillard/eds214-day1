@@ -7,14 +7,26 @@ output: html_document
 
 ## Repository purpose
 
-This repository contains code to reproduce Figure 3, which shows the effects of hurricane disturbance on stream water concentrations in a subset of four tropical forest watersheds of the Luquillo Experimental Forest, Puerto Rico.
+This repository contains code to reproduce Figure 3 within Schaefer et al. (2000), which shows the effects of hurricane disturbance on stream water concentrations in a subset of four tropical forest watersheds of the Luquillo Experimental Forest, Puerto Rico. These watersheds were Puente Roto Mameyes (PRM) and Bisley Quebradas 1, 2, and 3 (BQ1, BQ2, and BQ3).
+
+## Analysis
+
+![](figs/flowchart.png){width="564"}
+
+In order to recreate Figure 3, there were three main analysis steps. First, the raw data was read in and cleaned. Then, the rolling mean of each nutrient concentration over a 9 week window was calculated by site. Lastly, the rolling means were plotted for each nutrient by site over a period of 1988-1995. These plots were then combined into a patchwork figure for comparison.
 
 ## Repository structure
 
--   Data: data
--   Analysis script:
--   Supporting code:
--   Outputs: figs
+The following analysis scripts are located in the root of the project:
+
+-   Analysis script: Scripts can be run sequentially (01_data_cleaning.R, 02_rollingaverages.R, 03_plotting.R).
+
+The following folders are located in the project:
+
+-   Data: Raw data files.
+-   Outputs: Cleaned data frames, individual plots and final combined plots.
+-   Paper: The final paper Quarto document.
+-   R: Any functions sourced in the paper are stored here as well as supporting code.
 
 ## Data access
 

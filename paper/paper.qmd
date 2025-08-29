@@ -14,95 +14,39 @@ This paper serves to recreate Figure 3 of the study in Schaefer et al. (2000), w
 
 ### Set up
 ```{r}
-#| warning: false
 #| message: false
-# Load packages
-library(here)
 library(tidyverse)
-library(dplyr)
-library(janitor)
-library(patchwork)
-
-# Source functions
-source(here("R", "moving_average.R"))
+library(here)
+library(kableExtra)
 ```
+
 
 ## Data
 
-### Read in cleaned data
+The raw data file for each of the four watersheds was read in and joined into one data frame with cleaned column names. The data was then filtered to only contain dates from 1988-1995 and the necessary columns for analysis: sample_id, sample_date and the four nutrients. 
+
+These are the first six rows of the cleaned data frame:
 ```{r}
+#| echo: false
 #| message: false
+# visualization of data frame
 filtered_df <- read_csv(here("output", "filtered_df.csv"))
+df_head <- head(filtered_df) %>% 
+  kbl() %>% 
+  kable_styling()
+
+df_head
 ```
+
 
 ## Methods
 
-The nine-week moving average was calculated for each nutrient and each site, and added as a column to a final data frame to be used for plotting.
+The nine-week moving average was calculated for each nutrient and each site, and added as a column to a final data frame to be used for plotting. The moving average needed a separate function due to missing data in some weeks. This was done by creating a function called moving_average, which takes parameters focal date, dates, concentration, and window size (weeks) and returns the mean nutrient concentration for the specified date and window size. 
+
+This function was then applied to the clean data frame (grouped by site) and a column was added to the data frame for each nutrient's rolling average.
 
 ## Results
-The final figure is reflects each nutrient's rolling average from 1988-1995, with line type based upon site.
-### Patchwork figure
-```{r}
-#| warning: false
-final_df <- read_csv(here("output", "final_df.csv"))
-# Create ggplot for each nutrient
 
-# Create k graph
-figurek <- ggplot(final_df, aes(x = sample_date, y = calc_rolling_k)) +
-  geom_line(aes(linetype = sample_id)) +
-  labs(x = "Year",
-       y = "K mg/l")
+The final figure is reflects each nutrient's rolling average from 1988-1995, with line type based upon site. This was created using the patchwork library with an individual plot made for each nutrient. 
 
-# Save output
-ggsave(here("output", "figurek.png"))
-
-# Create no3_n graph
-figureno3_n <- ggplot(final_df, aes(x = sample_date, y = calc_rolling_no3_n)) +
-  geom_line(aes(linetype = sample_id)) +
-  labs(x = "Year",
-       y = "NO3-N ug/l")
-
-# Save output
-ggsave(here("output", "figureno3_n.png"))
-
-# Create mg graph
-figuremg <- ggplot(final_df, aes(x = sample_date, y = calc_rolling_mg)) +
-  geom_line(aes(linetype = sample_id)) +
-  labs(x = "Year",
-       y = "Mg mg/l")
-
-# Save output
-ggsave(here("output", "figuremg.png"))
-
-# Create ca graph
-figureca <- ggplot(final_df, aes(x = sample_date, y = calc_rolling_ca)) +
-  geom_line(aes(linetype = sample_id))  +
-  labs(x = "Year",
-       y = "Ca mg/l")
-
-# Save output
-ggsave(here("output", "figureca.png"))
-
-# Create nh4_n graph
-figurenh4_n <- ggplot(final_df, aes(x = sample_date, y = calc_rolling_nh4_n)) +
-  geom_line(aes(linetype = sample_id)) +
-  labs(x = "Year",
-       y = "NH4-N ug/l") 
-
-# Save output
-ggsave(here("output", "figurenh4_n.png"))
-
-# Combine figures into a patchwork figure
-patchwork <- (figurek/figureno3_n/figuremg/figureca/figurenh4_n) +
-  plot_layout(axes = "collect", guides = "collect")
-patchwork & theme_light() +
-  theme(
-    legend.title = element_text("Site")
-  ) 
-
-# Save output
-ggsave(here("output", "patchwork.png"))
-```
-```
-![Final Figure]("output/patchwork.png")
-
+![](images/patchwork.png)

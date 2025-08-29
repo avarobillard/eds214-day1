@@ -1,4 +1,4 @@
-#' Title: Moving Average
+#' Moving Average
 #'
 #' @param focal_date Date to start with 
 #' @param dates Vector (length n) of dates 
