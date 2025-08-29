@@ -11,9 +11,7 @@ Four watersheds, Puente Roto Mameyes (PRM) and Bisley Quebradas 1, 2, and 3 (BQ1
 
 This paper serves to recreate Figure 3 of the study in Schaefer et al. (2000), which represents 9-week moving averages of concentrations of various nutrients before and after the hurricane in each of the four watersheds.
 
-## Data
-
-### Set up and read in data
+### Set up
 ```{r}
 #| warning: false
 #| message: false
@@ -26,85 +24,61 @@ library(patchwork)
 
 # Source functions
 source(here("R", "moving_average.R"))
-
-# Read in csv files
-PRM <- read_csv(here("data", "RioMameyesPuenteRoto.csv"))
-BQ1 <- read_csv(here("data", "QuebradaCuenca1-Bisley.csv"))
-BQ2 <- read_csv(here("data", "QuebradaCuenca2-Bisley.csv"))
-BQ3 <- read_csv(here("data", "QuebradaCuenca3-Bisley.csv"))
-
 ```
 
-### Clean and filter data
+## Data
+
+### Read in cleaned data
 ```{r}
 #| message: false
-# Join all data frames, clean up column names
-full_join <- PRM %>% 
-  full_join(BQ1) %>% 
-  full_join(BQ2) %>% 
-  full_join(BQ3) %>% 
-  clean_names() 
-
-# Filter data 
-filtered_df <- full_join %>% 
-  select("sample_id", "sample_date", "no3_n", "k", "mg", "ca", "nh4_n") %>%
-  filter(lubridate::year(sample_date) %in% c(1988:1994)) 
+filtered_df <- read_csv(here("output", "filtered_df.csv"))
 ```
 
 ## Methods
 
 ```{r}
-## Determine rolling averages of each nutrient
+## Determine rolling averages of each nutrient by site
 
-# Rolling average of no3_n concentration for all sites 
-filtered_df$calc_rolling_no3_n <- sapply(
-  # variable to loop over/apply to all of
-  filtered_df$sample_date,
-  moving_average,
-  dates = filtered_df$sample_date,
-  conc = filtered_df$no3_n,
-  win_size_wks = 9
-)
-
-# Rolling average of k concentration for all sites 
-filtered_df$calc_rolling_k <- sapply(
-  # variable to loop over/apply to all of
-  filtered_df$sample_date,
-  moving_average,
-  dates = filtered_df$sample_date,
-  conc = filtered_df$k,
-  win_size_wks = 9
-)
-
-# Rolling average of mg concentration for all sites 
-filtered_df$calc_rolling_mg <- sapply(
-  # variable to loop over/apply to all of
-  filtered_df$sample_date,
-  moving_average,
-  dates = filtered_df$sample_date,
-  conc = filtered_df$mg,
-  win_size_wks = 9
-)
-
-# Rolling average of ca concentration for all sites 
-filtered_df$calc_rolling_ca <- sapply(
-  # variable to loop over/apply to all of
-  filtered_df$sample_date,
-  moving_average,
-  dates = filtered_df$sample_date,
-  conc = filtered_df$ca,
-  win_size_wks = 9
-)
-
-# Rolling average of nh4_n concentration for all sites 
-filtered_df$calc_rolling_nh4_n <- sapply(
-  # variable to loop over/apply to all of
-  filtered_df$sample_date,
-  moving_average,
-  dates = filtered_df$sample_date,
-  conc = filtered_df$nh4_n,
-  win_size_wks = 9
-)
+filtered_df <- filtered_df %>% 
+  group_by(sample_id) %>% # Group by sample id 
+  mutate( # Add column for each nutrient
+    # Column for rolling average of k concentration
+    calc_rolling_k = sapply(sample_date,
+                            moving_average,
+                            dates = sample_date,
+                            conc = k,
+                            win_size_wks = 9),
+    
+    # Column for rolling average of no3_n concentration
+    calc_rolling_no3_n = sapply(sample_date,
+                                moving_average,
+                                dates = sample_date,
+                                conc = no3_n,
+                                win_size_wks = 9),
+    
+    # Column for rolling average of mg concentration
+    calc_rolling_mg = sapply(sample_date,
+                             moving_average,
+                             dates = sample_date,
+                             conc = mg,
+                             win_size_wks = 9),
+    
+    # Column for rolling average of ca concentration
+    calc_rolling_ca = sapply(sample_date,
+                             moving_average,
+                             dates = sample_date,
+                             conc = ca,
+                             win_size_wks = 9),
+    
+    # Column for rolling average of nh4_n concentration
+    calc_rolling_nh4_n = sapply(sample_date,
+                                moving_average,
+                                dates = sample_date,
+                                conc = nh4_n,
+                                win_size_wks = 9)
+  ) %>% 
+  # Ungroup for any further analyses with data frame
+  ungroup()
 
 
 # Try a pivot longer data set to be able to graph by nutrient
@@ -141,7 +115,7 @@ figuremg <- ggplot(filtered_df, aes(x = sample_date, y = calc_rolling_mg)) +
 
 # Create ca graph
 figureca <- ggplot(filtered_df, aes(x = sample_date, y = calc_rolling_ca)) +
-  geom_line(aes(linetype = sample_id)) +
+  geom_line(aes(linetype = sample_id))  +
   labs(x = "Year",
        y = "Ca mg/l")
 
@@ -149,7 +123,7 @@ figureca <- ggplot(filtered_df, aes(x = sample_date, y = calc_rolling_ca)) +
 figurenh4_n <- ggplot(filtered_df, aes(x = sample_date, y = calc_rolling_nh4_n)) +
   geom_line(aes(linetype = sample_id)) +
   labs(x = "Year",
-       y = "NH4-N ug/l")
+       y = "NH4-N ug/l") 
 
 # Combine figures into a patchwork figure
 patchwork <- (figurek/figureno3_n/figuremg/figureca/figurenh4_n) +
@@ -157,7 +131,7 @@ patchwork <- (figurek/figureno3_n/figuremg/figureca/figurenh4_n) +
 patchwork & theme_light() +
   theme(
     legend.title = element_text("Site")
-  )
+  ) 
 ```
 
 ### Alternative: facet-wrapped figure

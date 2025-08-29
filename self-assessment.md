@@ -60,9 +60,9 @@ Some are titled well but are lengthy, and data frames could be titled more descr
 
 ## Scale
 ### Running environment initialization script installs all required packages
-Meets spec-
-Running the script installs all of the packages
+Not yet-
+Haven't checked if running the script installs all of the packages
 
 ### Analysis script runs without errors
-Meets spec-
-The script runs without errors
+Not yet-
+The script has an error
