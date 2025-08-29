@@ -1,5 +1,6 @@
 ---
 title: "EDS 214 Final Project"
+author: Ava Robillard
 format: html
 ---
 
